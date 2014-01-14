@@ -1,0 +1,38 @@
+    body {
+        font-family: "Helvetica", "Arial", sans-serif;
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+        box-sizing: border-box;         /* Opera/IE 8+ */
+        text-align: center;
+    }
+
+    .square {
+        height: 25px;
+        width: 25px;
+        margin: 2px;
+        background-color: gray;
+        display: block;
+        float: left;
+        text-align: center;
+    }
+
+    #board {
+        height: 145px;
+        width: 145px;
+        background-color: pink;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .bomb {
+        background-color: red;
+    }
+
+    .marked {
+        background-color: green;
+    }
+
+    .number {
+        background-color: lightgray;
+    }
