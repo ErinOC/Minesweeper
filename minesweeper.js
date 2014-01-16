@@ -1,4 +1,5 @@
 (function() {
+
     var BOARD = function(size) {
         function generateBoard(size) {
             var board = [],
@@ -62,10 +63,10 @@
         function limitNearbySquaresToCoordinatesWithinBoardDimensions(element, index, array) {
             if ((element[0] >= 0 && element[1] >= 0) && (element[0] < 5 && element[1] < 5)) {
                 nearbySquaresOnBoard.push(element);
-            }
+            };
         }
 
-        nearby.forEach(limitNearbySquaresToCoordinatesWithinBoardDimensions)            
+        nearby.forEach(limitNearbySquaresToCoordinatesWithinBoardDimensions);            
         return nearbySquaresOnBoard;
     }
 
@@ -83,8 +84,10 @@
     }
 
     function setNumericValue(coordinate, bombs) {
-        var el = document.getElementById(coordinate);
-        el.setAttribute("class", "square number");
+        var el = document.getElementById(coordinate), 
+        color = "number" + bombs;
+        console.log(color);
+        el.setAttribute("class", "square number" + bombs);
         el.innerHTML = bombs;
     }
 
@@ -132,7 +135,7 @@
         } else {
             REVEALED.push(coordinate);
             handleEmptySquares(coordinate);
-        }
+        };
     }
 
     var reveal = function() {
@@ -145,37 +148,39 @@
             for (m=0; m<squareList.length; m++) {
                 squareList[m].removeEventListener('click', reveal);
             };
-            //And display a button to restart.
+            var restartButton = document.getElementById("restart");
+            restartButton.style.display = "block";
+
         } else {
             //Passes in the coordinate in "1-1" format, not [1, 1].
             return evaluate(coordinate);
-        }
+        };
     } 
+
+    var squareList = document.querySelectorAll("div.square");
 
     function markBomb() {
         var coordinate = this;
         coordinate.setAttribute("class", "square marked");
     } 
 
-    var squareList = document.querySelectorAll("div.square");
-
     for (m=0; m<squareList.length; m++) {
-        squareList[m].addEventListener('click', reveal);
+        squareList[m].addEventListener('click', markBomb);
     };
 
+    
     for (m=0; m<squareList.length; m++) {
-        squareList[m].addEventListener('dblclick', markBomb);
+        squareList[m].addEventListener('dblclick', reveal);
     };
-
-    //Need to add set-timeout here.
 
 }());
 
 
 //Also to do:
-// Add bomb gif. Make different numbers different colors.
+//Add win conditions.
+//Don't allow for the first click to be a bomb.
+//Add a timeout before the flag appears?
+//Add a timer
+//Get the size of the board from user input
 //Add a timer and tracker for the number of bombs left.
-//Add a bomb png and a flag png.
-// Add an outer beveled border and beleing to inner squares.
-//Get an icon for the bombs and smiley, etc.? No images??
 //Make it have touch effects!!! Usable on iPad, iPhone.
