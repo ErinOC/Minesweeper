@@ -1,5 +1,10 @@
 (function() {
 
+    var REVEALED = [];
+    var TALLY = 0;
+    var SIZE = 5;
+    var BOMBS = parseInt(SIZE + (SIZE/2));
+
     var BOARD = function(size) {
         function generateBoard(size) {
             var board = [],
@@ -11,7 +16,7 @@
                 board.push(new Array(size));   
                 for (j = 0; j<size; j++) { 
                     board[i][j] = false;
-                    divContent = "<div class='square'" + "id=" + i + "-" + j + "></div>";
+                    divContent = "<div class='square unexposed'" + "id=" + i + "-" + j + "></div>";
                     currentContent = document.getElementById('board').innerHTML;
                     document.getElementById('board').innerHTML = currentContent + divContent;
                 };  
@@ -37,7 +42,7 @@
             var gameBoard = makeBoard(size),
             aBomb = [];
             //Make a number of bombs appropriate for the size of the board.
-            for (k = 0; k<3; k++) {
+            for (k = 0; k< (size + (size / 2)); k++) {
                 aBomb = makeBomb();
                 gameBoard[aBomb[0]][aBomb[1]] = true;
             };
@@ -45,10 +50,10 @@
             return gameBoard; 
         }
         //Will want to let the user input determine the size of the board.
-        return setBombsOnBoard(generateBoard, 5, generateBombCoordinate);
+        return setBombsOnBoard(generateBoard, SIZE, generateBombCoordinate);
     }();
 
-    var REVEALED = [];
+
 
     function findNearbySquares(x, y) {
         var nearby = [[x+1, y], [x-1, y],
@@ -132,13 +137,16 @@
         if (bombs !== 0) {
             setNumericValue(coordinate, bombs);
             REVEALED.push(coordinate);
+            TALLY += 1;
         } else {
             REVEALED.push(coordinate);
             handleEmptySquares(coordinate);
+            TALLY += 1;
         };
     }
 
     var reveal = function() {
+        console.log("TALLY", TALLY);
         var coordinate = this.id,
             currentValue = (BOARD[parseInt(coordinate[0])][parseInt(coordinate[2])]);
         if (currentValue === true) {
@@ -146,31 +154,68 @@
             // Make the board freeze if a bomb is hit.
             var squares = document.querySelectorAll("div.square");
             for (m=0; m<squareList.length; m++) {
-                squareList[m].removeEventListener('click', reveal);
+                squareList[m].removeEventListener('click', markBomb);
+                squareList[m].removeEventListener('dblclick', reveal);
             };
             var restartButton = document.getElementById("restart");
             restartButton.style.display = "block";
 
         } else {
             //Passes in the coordinate in "1-1" format, not [1, 1].
+            checkForWin();
             return evaluate(coordinate);
         };
     } 
 
     var squareList = document.querySelectorAll("div.square");
 
+    function checkForWin() {
+        if (((SIZE * SIZE) - BOMBS) === TALLY) {
+            alert("you win!");
+
+
+            bombSquares = document.querySelectorAll(".unexposed");
+            console.log("BOMB SQUARES", bombSquares);
+
+        // function markRemainingBombs(element, index, array) {
+        //     element.setAttribute("class", "bomb");
+        // }
+    
+        // bombSquares.forEach(markRemainingBombs);
+
+            for (var i=0; i<bombSquares.length; i++) {
+                bombSquares[i].setAttribute("class", "square bomb");
+            };
+        };
+    }
+
     function markBomb() {
         var coordinate = this;
         coordinate.setAttribute("class", "square marked");
-    } 
+        checkForWin();
+    }
+
+    var firstClick = function() {
+        var m = 0;
+        var timer = function() {
+            console.log("yep");
+        };
+        //The firstClick function starts the timer.
+        setInterval(timer, 1000);
+        //Also ensures the first spot isn't a bomb.
+        
+        //After that, remove the firstClick listeners and add others.
+        for (m=0; m<squareList.length; m++) {
+            squareList[m].removeEventListener('click', firstClick);
+            squareList[m].removeEventListener('dblclick', firstClick);
+            squareList[m].addEventListener('click', markBomb);
+            squareList[m].addEventListener('dblclick', reveal);
+        };
+    }
 
     for (m=0; m<squareList.length; m++) {
-        squareList[m].addEventListener('click', markBomb);
-    };
-
-    
-    for (m=0; m<squareList.length; m++) {
-        squareList[m].addEventListener('dblclick', reveal);
+        squareList[m].addEventListener('click', firstClick);
+        squareList[m].addEventListener('dblclick', firstClick);
     };
 
 }());
@@ -183,4 +228,4 @@
 //Add a timer
 //Get the size of the board from user input
 //Add a timer and tracker for the number of bombs left.
-//Make it have touch effects!!! Usable on iPad, iPhone.
+//Make it have touch effects

@@ -6,7 +6,12 @@
         <h1>Minesweeper</h1>
         <p>Click once to mark a square with a flag.</p>
         <p>Click twice to expose a square.</p>
-        <div id="board">
+        <div id="outer-board">
+            <div id="top-panel">
+                <div id="bombs-left"></div>
+                <div id="timer"></div>
+            </div>
+            <div id="board"></div>
         </div>
         <a href="minesweeper.html"><button id="restart">Play again</button></a>
     <script src="polyfills.js"></script>
