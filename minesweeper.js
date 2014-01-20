@@ -4,7 +4,6 @@
         TALLY = 0,
         SIZE = 5,
         NUMOFBOMBS = parseInt(SIZE + (SIZE/2)),
-        BOMBSLEFT = NUMOFBOMBS,
         TIMER = null,
         BOARD = [],
         MINESWEEPER = MINESWEEPER || {};
@@ -158,18 +157,19 @@
             i = 0,
             newSquare = [];
         if (bombs !== 0) {
+            TALLY += 1;
+            checkForWin();
             setNumericValue(coordinate, bombs);
             REVEALED.push(coordinate);
-            TALLY += 1;
         } else {
-            REVEALED.push(coordinate);
             TALLY += 1;
+            checkForWin();
+            REVEALED.push(coordinate);
             handleEmptySquares(coordinate);
         };
     }
 
     var reveal = function() {
-        console.log("TALLY", TALLY);
         var coordinate = this.id,
             currentValue = (BOARD[parseInt(coordinate[0])][parseInt(coordinate[2])]);
         if (currentValue === true) {
@@ -188,7 +188,6 @@
 
         } else {
             //Passes in the coordinate in "1-1" format, not [1, 1].
-            checkForWin();
             return evaluate(coordinate);
         };
     } 
@@ -196,6 +195,7 @@
     var squareList = document.querySelectorAll("div.square");
 
     function checkForWin() {
+        console.log("testing for win", 25-7, TALLY);
         if (((SIZE * SIZE) - NUMOFBOMBS) === TALLY) {
             alert("you win!");
             clearInterval(TIMER);
@@ -214,8 +214,6 @@
     function markBomb() {
         var coordinate = this;
         coordinate.setAttribute("class", "square marked");
-        BOMBSLEFT = (BOMBSLEFT - 1);
-        document.getElementById("bombs-left").innerHTML = BOMBSLEFT;
         checkForWin();
     }
 
@@ -234,31 +232,26 @@
             document.getElementById("timer").innerHTML = minutes + ":" +seconds;
         };
 
-        //The firstClick function starts the timer.
+        //Start the timer.
         TIMER = setInterval(timing, 1000);
-
-        //Also ensures the first spot isn't a bomb.
+        //Ensure the first click isn't a bomb.
         clickedCoordinate = [parseInt(this.id[0]), parseInt(this.id[2])];
-        console.log(clickedCoordinate);
-
-        //And sets the bombs on the board.
+        //Set the bombs on the board.
         MINESWEEPER.setBombsOnBoard(clickedCoordinate);
-
-        //After that, remove the firstClick listeners and add others.
+        //Remove the firstClick listeners and add others.
         for (m=0; m<squareList.length; m++) {
             squareList[m].removeEventListener('click', firstClick);
             squareList[m].removeEventListener('dblclick', firstClick);
             squareList[m].addEventListener('click', markBomb);
             squareList[m].addEventListener('dblclick', reveal);
         };
+        evaluate(this.id);
     }
 
     for (m=0; m<squareList.length; m++) {
         squareList[m].addEventListener('click', firstClick);
         squareList[m].addEventListener('dblclick', firstClick);
     };
-
-    document.getElementById("bombs-left").innerHTML = BOMBSLEFT;
     document.getElementById("timer").innerHTML = "0:00";
 
 }());
