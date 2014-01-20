@@ -6,12 +6,13 @@
         NUMOFBOMBS = parseInt(SIZE + (SIZE/2)),
         BOMBSLEFT = NUMOFBOMBS,
         TIMER = null,
+        BOARD = [],
         MINESWEEPER = MINESWEEPER || {};
 
 
     (function(ms, size) {
-        var INELIGIBLESQUARES = [],
-            BOARD = [];
+        var INELIGIBLESQUARES = [];
+          
         ms.board = function(size) {
             var i = 0, 
                 j = 0,
@@ -230,7 +231,7 @@
             } else {
                 seconds +=1;
             }
-            document.getElementById("timer").innerHTML = minutes + ":" + "0"+seconds;
+            document.getElementById("timer").innerHTML = minutes + ":" +seconds;
         };
 
         //The firstClick function starts the timer.
