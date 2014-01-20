@@ -1,8 +1,5 @@
     body {
         font-family: "Helvetica", "Arial", sans-serif;
-        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-        box-sizing: border-box;         /* Opera/IE 8+ */
         text-align: center;
         background-color: #c0c0c0;
     }
@@ -13,7 +10,7 @@
         background-color: gray;
         float: left;
         text-align: center;
-        /*line-height: 1.5em;*/
+        line-height: 1.5em;
         border-top: 2px solid white;
         border-left: 2px solid #c0c0c0;
         border-right: 2px solid #3b3b3b;
@@ -24,7 +21,7 @@
         height: 145px;
         width: 145px;
         background-color: darkgrey;
-        padding: 5px;
+        padding: 10px;
         margin-left: auto;
         margin-right: auto;
     }
@@ -32,7 +29,7 @@
     #outer-board {
         background-color: darkgrey;
         height: 210px;
-        width: 180px;
+        width: 170px;
         margin-left: auto;
         margin-right: auto;
         border-bottom: 3px solid white;
@@ -43,10 +40,12 @@
 
     #top-panel {
         position: relative;
-        width: 165px;
-        height: 30px;
+        width: 145px;
+        height: 32px;
         background-color: lightgray;
-        margin: 5px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10px;
         border-top: 2px solid white;
         border-left: 2px solid #c0c0c0;
         border-right: 2px solid #3b3b3b;
@@ -118,8 +117,8 @@
     }
 
     p {
-        font-size: .8em;
-        line-height: 0em;
+        font-size: 1em;
+        line-height: .2em;
     }
 
     #restart {
