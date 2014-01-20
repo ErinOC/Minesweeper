@@ -221,17 +221,22 @@
         var m = 0,
             clickedCoordinate = [],
             minutes = 0,
-            seconds = 0;
+            seconds = 0,
+            timerBox = document.getElementById("timer");
         var timing = function() {
             if ((seconds + 1) % 60 === 0) {
                 minutes += 1;
                 seconds = 0;
             } else {
                 seconds +=1;
-            }
-            document.getElementById("timer").innerHTML = minutes + ":" +seconds;
-        };
+            };
 
+            if (seconds < 10) {
+                timerBox.innerHTML = minutes + ":0" + seconds;
+            } else {
+                timerBox.innerHTML = minutes + ":" + seconds;
+            };
+        };
         //Start the timer.
         TIMER = setInterval(timing, 1000);
         //Ensure the first click isn't a bomb.
