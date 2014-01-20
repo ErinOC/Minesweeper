@@ -1,35 +1,39 @@
 (function() {
 
-    var REVEALED = [];
-    var TALLY = 0;
-    var SIZE = 5;
-    var BOMBS = parseInt(SIZE + (SIZE/2));
+    var REVEALED = [],
+        TALLY = 0,
+        SIZE = 5,
+        NUMOFBOMBS = parseInt(SIZE + (SIZE/2)),
+        BOMBSLEFT = NUMOFBOMBS,
+        TIMER = null,
+        MINESWEEPER = MINESWEEPER || {};
 
-    var BOARD = function(size) {
-        function generateBoard(size) {
-            var board = [],
-                i = 0, 
+
+    (function(ms, size) {
+        var INELIGIBLESQUARES = [],
+            BOARD = [];
+        ms.board = function(size) {
+            var i = 0, 
                 j = 0,
+                myBoard = [];
                 divContent = 0;
-
             for (i=0; i<size; i++) {
-                board.push(new Array(size));   
+                myBoard.push(new Array(size));   
                 for (j = 0; j<size; j++) { 
-                    board[i][j] = false;
+                    myBoard[i][j] = false;
                     divContent = "<div class='square unexposed'" + "id=" + i + "-" + j + "></div>";
                     currentContent = document.getElementById('board').innerHTML;
                     document.getElementById('board').innerHTML = currentContent + divContent;
                 };  
             };
-            return board;
+            BOARD = myBoard;
         }
 
-        function generateBombCoordinate() {
+        var generateBombCoordinate = function() {
             var i = 0,
                 coordX = 0,
                 coordY = 0,
                 coordinate = [0, 0];
-
             for (i; i<5; i+=1) { 
                 coordX = Math.ceil((Math.random() * 5) - 1);
                 coordY = Math.ceil((Math.random() * 5) - 1);
@@ -38,22 +42,36 @@
             };
         }
 
-        function setBombsOnBoard(makeBoard, size, makeBomb) {
-            var gameBoard = makeBoard(size),
-            aBomb = [];
-            //Make a number of bombs appropriate for the size of the board.
-            for (k = 0; k< (size + (size / 2)); k++) {
-                aBomb = makeBomb();
-                gameBoard[aBomb[0]][aBomb[1]] = true;
+        var testIfBombCanBePlaced = function(coord) {
+            var i = 0;
+            for (i = 0; i<INELIGIBLESQUARES.length; i++) {  
+                if (INELIGIBLESQUARES[i][0] === coord[0] && INELIGIBLESQUARES[i][1] === coord[1]) {
+                    console.log("can't place a bomb there");
+                    return false;
+                };
             };
+            return true;
+        }  
 
-            return gameBoard; 
+        ms.setBombsOnBoard = function(coord) {
+            var aBomb = [];
+            INELIGIBLESQUARES.push(coord);
+            //Generate bombs until the desired number is reached.
+            while ((INELIGIBLESQUARES.length -1) < NUMOFBOMBS) {
+                aBomb = generateBombCoordinate();
+                //Test if the coordinate is available, and if so place bomb there.
+                if (testIfBombCanBePlaced(aBomb) === true) {
+                    BOARD[aBomb[0]][aBomb[1]] = true;
+                    INELIGIBLESQUARES.push(aBomb);
+                };
+            }
+            return BOARD;
         }
-        //Will want to let the user input determine the size of the board.
-        return setBombsOnBoard(generateBoard, SIZE, generateBombCoordinate);
-    }();
 
+    }(MINESWEEPER, SIZE));
 
+    //Create empty board.
+    MINESWEEPER.board(SIZE);
 
     function findNearbySquares(x, y) {
         var nearby = [[x+1, y], [x-1, y],
@@ -94,6 +112,8 @@
         console.log(color);
         el.setAttribute("class", "square number" + bombs);
         el.innerHTML = bombs;
+        el.removeEventListener('click', markBomb);
+        el.removeEventListener('dblclick', reveal);
     }
 
     function checkIfNeighborWasAlreadyEvaluated(coordinate) {
@@ -115,6 +135,8 @@
             formatted = "",
             nearby = findNearbySquares(parseInt(coordinate[0]), parseInt(coordinate[2]));
         el.setAttribute("class", "square number");
+        el.removeEventListener('click', markBomb);
+        el.removeEventListener('dblclick', reveal);
 
         //For each surrounding square, evaluate if not already revealed.
         function evaluateSurroundingSquare(element, index, array){
@@ -140,8 +162,8 @@
             TALLY += 1;
         } else {
             REVEALED.push(coordinate);
-            handleEmptySquares(coordinate);
             TALLY += 1;
+            handleEmptySquares(coordinate);
         };
     }
 
@@ -157,6 +179,9 @@
                 squareList[m].removeEventListener('click', markBomb);
                 squareList[m].removeEventListener('dblclick', reveal);
             };
+            //Stop the timer.
+            clearInterval(TIMER);
+            //Show "Play again" button.
             var restartButton = document.getElementById("restart");
             restartButton.style.display = "block";
 
@@ -170,21 +195,17 @@
     var squareList = document.querySelectorAll("div.square");
 
     function checkForWin() {
-        if (((SIZE * SIZE) - BOMBS) === TALLY) {
+        if (((SIZE * SIZE) - NUMOFBOMBS) === TALLY) {
             alert("you win!");
-
-
+            clearInterval(TIMER);
             bombSquares = document.querySelectorAll(".unexposed");
             console.log("BOMB SQUARES", bombSquares);
-
-        // function markRemainingBombs(element, index, array) {
-        //     element.setAttribute("class", "bomb");
-        // }
-    
-        // bombSquares.forEach(markRemainingBombs);
-
-            for (var i=0; i<bombSquares.length; i++) {
-                bombSquares[i].setAttribute("class", "square bomb");
+            function markRemainingBombs(element, index, array) {
+                element.setAttribute("class", "bomb");
+            }
+            
+            for (var t=0; t<bombSquares.length; t++) {
+                bombSquares[t].setAttribute("class", "square bomb");
             };
         };
     }
@@ -192,18 +213,36 @@
     function markBomb() {
         var coordinate = this;
         coordinate.setAttribute("class", "square marked");
+        BOMBSLEFT = (BOMBSLEFT - 1);
+        document.getElementById("bombs-left").innerHTML = BOMBSLEFT;
         checkForWin();
     }
 
     var firstClick = function() {
-        var m = 0;
-        var timer = function() {
-            console.log("yep");
+        var m = 0,
+            clickedCoordinate = [],
+            minutes = 0,
+            seconds = 0;
+        var timing = function() {
+            if ((seconds + 1) % 60 === 0) {
+                minutes += 1;
+                seconds = 0;
+            } else {
+                seconds +=1;
+            }
+            document.getElementById("timer").innerHTML = minutes + ":" + "0"+seconds;
         };
+
         //The firstClick function starts the timer.
-        setInterval(timer, 1000);
+        TIMER = setInterval(timing, 1000);
+
         //Also ensures the first spot isn't a bomb.
-        
+        clickedCoordinate = [parseInt(this.id[0]), parseInt(this.id[2])];
+        console.log(clickedCoordinate);
+
+        //And sets the bombs on the board.
+        MINESWEEPER.setBombsOnBoard(clickedCoordinate);
+
         //After that, remove the firstClick listeners and add others.
         for (m=0; m<squareList.length; m++) {
             squareList[m].removeEventListener('click', firstClick);
@@ -218,14 +257,17 @@
         squareList[m].addEventListener('dblclick', firstClick);
     };
 
+    document.getElementById("bombs-left").innerHTML = BOMBSLEFT;
+    document.getElementById("timer").innerHTML = "0:00";
+
 }());
 
 
 //Also to do:
-//Add win conditions.
-//Don't allow for the first click to be a bomb.
+//Check win conditions.
+//Fix bomb scoreboard.
 //Add a timeout before the flag appears?
-//Add a timer
 //Get the size of the board from user input
 //Add a timer and tracker for the number of bombs left.
 //Make it have touch effects
+//Do the math on the pixels and stop winging it.
